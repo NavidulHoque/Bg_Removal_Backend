@@ -30,6 +30,8 @@ export const clerkWebHooks = async (req, res) => {
 
         const { data, type } = payload
 
+        console.log(type)
+
         switch (type) {
 
             case "user.created": {
