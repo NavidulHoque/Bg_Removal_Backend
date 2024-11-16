@@ -38,15 +38,15 @@ export const clerkWebHooks = async (req, res) => {
 
             case "user.created": {
 
-                const newUser = new User({
+                const newUser = {
                     clerkID: data.id,
                     email: data.email_addresses[0].email_address,
                     firstName: data.first_name,
                     lastName: data.lastName,
                     photo: data.image_url
-                })
+                }
 
-                await newUser.save()
+                await User.create(newUser)
 
                 return res.json({})
             }
