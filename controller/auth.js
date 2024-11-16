@@ -1,7 +1,6 @@
 import { Webhook } from 'svix'
 
 export const clerkWebHooks = async (req, res) => {
-    res.send("hello")
 
     // try {
     //     const headers = req.headers
