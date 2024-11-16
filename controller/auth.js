@@ -3,7 +3,6 @@ import { User } from './../models/User.js';
 import { CLERK_WEBHOOK_SECRET } from '../config/config.js';
 
 export const clerkWebHooks = async (req, res) => {
-    
 
     try {
         const headers = req.headers
@@ -24,7 +23,7 @@ export const clerkWebHooks = async (req, res) => {
 
         const webHook = new Webhook(CLERK_WEBHOOK_SECRET)
 
-        await webHook.verify(payload, {
+        await webHook.verify(JSON.stringify(payload), {
             'svix-id': svix_id,
             'svix-timestamp': svix_timestamp,
             'svix-signature': svix_signature,
