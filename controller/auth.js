@@ -52,12 +52,10 @@ export const clerkWebHooks = async (req, res) => {
             case "user.updated": {
 
                 const userData = {
-                    clerkID: data.id,
                     email: data.email_addresses[0].email_address,
                     firstName: data.first_name,
                     lastName: data.lastName,
                     photo: data.image_url,
-
                 }
 
                 await User.findOneAndUpdate({ clerkID: data.id }, userData)

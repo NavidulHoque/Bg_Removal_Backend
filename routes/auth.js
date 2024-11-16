@@ -3,6 +3,6 @@ import { clerkWebHooks } from '../controller/auth.js'
 
 const router = express.Router()
 
-router.get("/webhooks", clerkWebHooks)
+router.post("/webhooks", clerkWebHooks)
 
 export default router
