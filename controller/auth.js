@@ -27,7 +27,7 @@ export const clerkWebHooks = async (req, res) => {
     let evt
 
     try {
-        evt = wh.verify(payload, {
+        evt = await wh.verify(payload, {
             'svix-id': svix_id,
             'svix-timestamp': svix_timestamp,
             'svix-signature': svix_signature,
