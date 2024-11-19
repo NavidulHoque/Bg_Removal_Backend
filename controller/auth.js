@@ -1,80 +1,54 @@
-import { Webhook } from 'svix'
-import { User } from './../models/User.js';
-import { CLERK_WEBHOOK_SECRET } from '../config/config.js';
+import { User } from './../models/User.js'
+import jwt from 'jsonwebtoken'
 
-export const clerkWebHooks = async (req, res) => {
-
-    // Create new Svix instance with secret
-    const wh = new Webhook(CLERK_WEBHOOK_SECRET)
-
-    // Get headers and body
-    const headers = req.headers
-    const payload = req.body
-
-    // Get Svix headers for verification
-    const svix_id = headers['svix-id']
-    const svix_timestamp = headers['svix-timestamp']
-    const svix_signature = headers['svix-signature']
-
-    // If there are no headers, error out
-    if (!svix_id || !svix_timestamp || !svix_signature) {
-        return void res.status(400).json({
-            success: false,
-            message: 'Error: Missing svix headers',
-        })
-    }
-
-    let evt
+export const createAnUserByCredentials = async (req, res) => {
+    const { username, email, password, provider, photo } = req.body
 
     try {
-        evt = await wh.verify(payload, {
-            'svix-id': svix_id,
-            'svix-timestamp': svix_timestamp,
-            'svix-signature': svix_signature,
-        })
 
-        const { data, type } = evt
+        let user = await User.findOne({ email });
 
-        console.log(type)
+        if (provider === "credentials") {
 
-        switch (type) {
-
-            case "user.created": {
-
-                const newUser = {
-                    clerkID: data.id,
-                    email: data.email_addresses[0].email_address,
-                    firstName: data.first_name,
-                    lastName: data.lastName,
-                    photo: data.image_url
-                }
-
-                await User.create(newUser)
-
-                return res.json({})
+            if (user) {
+                return res.json({
+                    status: false,
+                    message: "Email already exists"
+                })
             }
 
-            case "user.updated": {
+            const newUser = new User({ username, email, password, provider })
 
-                const userData = {
-                    email: data.email_addresses[0].email_address,
-                    firstName: data.first_name,
-                    lastName: data.lastName,
-                    photo: data.image_url,
-                }
+            await newUser.save()
 
-                await User.findOneAndUpdate({ clerkID: data.id }, userData)
+            return res.json({
+                status: true,
+                message: "Account created successfully"
+            })
+        }
 
-                return res.json({})
+        else {
+
+            if (!user) {
+
+                user = new User({ username, email, provider, photo })
+
+                await user.save()
+
+                res.json({
+                    status: false,
+                    user
+                })
             }
 
-            case "user.deleted": {
-
-                await User.findOneAndDelete({ clerkID: data.id })
-
-                return res.json({})
+            else{
+                res.json({
+                    status: false,
+                    user
+                })
             }
         }
+
     }
 
     catch (error) {
@@ -82,8 +56,133 @@ export const clerkWebHooks = async (req, res) => {
         console.error(error)
 
         return res.json({
-            success: false,
-            message: error.message,
+            status: false,
+            message: "Something went wrong, please try again"
         })
     }
 }
+
+export const loginAnUser = async (req, res) => {
+
+    try {
+
+        const { email, password } = req.body
+
+        const user = await User.findOne({ email })
+
+        if (!user) {
+            return res.json({
+                status: false,
+                message: "Email invalid, create an account first"
+            })
+        }
+
+        const isMatched = await user.comparePassword(password, user.password)
+
+        if (!isMatched) {
+            return res.json({
+                status: false,
+                message: "Password invalid"
+            })
+        }
+
+        const { username, _id, createdAt, updatedAt } = user
+        const loggedInUser = { id: _id, email: user.email, username, createdAt, updatedAt }
+
+        const token = jwt.sign({ id: user._id }, process.env.SECRET, { expiresIn: "3d" })
+
+        return res.cookie("token", token, {
+            httpOnly: true,
+            secure: process.env.NODE_ENV === 'production',
+            sameSite: process.env.NODE_ENV === "development" ? "Strict" : "None",
+            maxAge: 3 * 24 * 60 * 60 * 1000
+        }).json({
+            status: true,
+            loggedInUser
+        })
+
+    }
+
+    catch (error) {
+        console.error(error)
+
+        return res.json({
+            status: false,
+            message: "Something went wrong, please try again"
+        })
+    }
+}
+
+export const logoutAnUser = async (req, res) => {
+
+    try {
+        return res.clearCookie("token", { sameSite: "none", secure: true }).json({ status: true })
+    }
+
+    catch (error) {
+        console.error(error)
+
+        return res.json({
+            status: false,
+            message: "Something went wrong, please try again"
+        })
+    }
+}
+
+export const createAnUserByProviders = async (req, res) => {
+
+    const { email, username, photo, provider } = req.body;
+
+    try {
+        // Check if user already exists
+        let user = await User.findOne({ email });
+
+        // If user doesn't exist, create a new user
+        if (!user) {
+            user = new User({
+                email,
+                username,
+                photo,
+                provider,
+            });
+            await user.save();
+        }
+
+        res.status(200).json(user);
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ message: "Internal Server Error" });
+    }
+}
+
+export const protect = async (req, res, next) => {
+
+    const token = req.cookies.token
+
+    if (!token) {
+        return res.json({
+            status: false,
+            message: "No token provided, please login"
+        })
+    }
+
+    jwt.verify(token, process.env.SECRET, async (err) => {
+
+        if (err) {
+            if (err.name === "TokenExpiredError") {
+                return res.json({
+                    status: false,
+                    message: "Token expired, please login again"
+                })
+            }
+
+            return res.json({
+                status: false,
+                message: "Invalid token, please login again"
+            })
+        }
+
+        next()
+    })
+}
+
