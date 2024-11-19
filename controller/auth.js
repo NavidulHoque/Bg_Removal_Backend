@@ -1,7 +1,7 @@
 import { User } from './../models/User.js'
 import jwt from 'jsonwebtoken'
 
-export const createAnUserByCredentials = async (req, res) => {
+export const createAnUser = async (req, res) => {
     const { username, email, password, provider, photo } = req.body
 
     try {
@@ -27,13 +27,15 @@ export const createAnUserByCredentials = async (req, res) => {
             })
         }
 
-        else {
+        else if (provider === "google" || provider === "github") {
 
             if (!user) {
 
                 user = new User({ username, email, provider, photo })
 
                 await user.save()
+
+                user = await User.findOne({ email });
 
                 res.json({
                     status: false,
@@ -48,7 +50,6 @@ export const createAnUserByCredentials = async (req, res) => {
                 })
             }
         }
-
     }
 
     catch (error) {
@@ -126,32 +127,6 @@ export const logoutAnUser = async (req, res) => {
             status: false,
             message: "Something went wrong, please try again"
         })
-    }
-}
-
-export const createAnUserByProviders = async (req, res) => {
-
-    const { email, username, photo, provider } = req.body;
-
-    try {
-        // Check if user already exists
-        let user = await User.findOne({ email });
-
-        // If user doesn't exist, create a new user
-        if (!user) {
-            user = new User({
-                email,
-                username,
-                photo,
-                provider,
-            });
-            await user.save();
-        }
-
-        res.status(200).json(user);
-    } catch (error) {
-        console.error(error);
-        res.status(500).json({ message: "Internal Server Error" });
     }
 }
 
