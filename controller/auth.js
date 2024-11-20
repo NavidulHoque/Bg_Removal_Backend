@@ -91,7 +91,6 @@ export const loginAnUser = async (req, res) => {
             status: true,
             user
         })
-
     }
 
     catch (error) {
