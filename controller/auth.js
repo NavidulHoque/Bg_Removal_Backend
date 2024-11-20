@@ -58,7 +58,7 @@ export const createAnUser = async (req, res) => {
 
         return res.json({
             status: false,
-            message: "Something went wrong, please try again"
+            message: "Something went wrong!!"
         })
     }
 }
