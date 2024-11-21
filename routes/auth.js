@@ -5,7 +5,7 @@ const router = express.Router()
 
 router.post("/registration", createAnUser)
 
-router.post("/login", loginAnUse)
+router.post("/login", loginAnUser)
 
 router.get("/logout", logoutAnUser)
 
