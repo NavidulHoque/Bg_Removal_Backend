@@ -29,6 +29,8 @@ export const createAnUser = async (req, res) => {
 
         else if (provider === "google" || provider === "github") {
 
+            console.log("i am called")
+
             if (!user) {
 
                 user = new User({ username, email, provider, photo })
@@ -38,14 +40,14 @@ export const createAnUser = async (req, res) => {
                 user = await User.findOne({ email });
 
                 res.json({
-                    status: false,
+                    status: true,
                     user
                 })
             }
 
             else{
                 res.json({
-                    status: false,
+                    status: true,
                     user
                 })
             }
@@ -58,7 +60,7 @@ export const createAnUser = async (req, res) => {
 
         return res.json({
             status: false,
-            message: "Something went wrong!!"
+            message: "Something went wrong, please try again"
         })
     }
 }
