@@ -1,3 +1,4 @@
+import { SECRET } from '../config/config.js';
 import { User } from './../models/User.js'
 import jwt from 'jsonwebtoken'
 
@@ -6,7 +7,7 @@ export const createAnUser = async (req, res) => {
 
     try {
 
-        let user = await User.findOne({ email });
+        let user = await User.findOne({ email, provider });
 
         if (provider === "credentials") {
 
@@ -29,26 +30,20 @@ export const createAnUser = async (req, res) => {
 
         else if (provider === "google" || provider === "github") {
 
-            console.log("i am called")
-
             if (!user) {
 
                 user = new User({ username, email, provider, photo })
 
                 await user.save()
 
-                user = await User.findOne({ email });
-
                 res.json({
-                    status: true,
-                    user
+                    status: true
                 })
             }
 
             else{
                 res.json({
-                    status: true,
-                    user
+                    status: true
                 })
             }
         }
@@ -125,6 +120,8 @@ export const protect = async (req, res, next) => {
 
     const token = req.cookies.token
 
+    console.log(token)
+
     if (!token) {
         return res.json({
             status: false,
@@ -132,7 +129,7 @@ export const protect = async (req, res, next) => {
         })
     }
 
-    jwt.verify(token, process.env.SECRET, async (err) => {
+    jwt.verify(token, SECRET, async (err) => {
 
         if (err) {
             if (err.name === "TokenExpiredError") {

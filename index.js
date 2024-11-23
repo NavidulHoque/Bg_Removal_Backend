@@ -2,6 +2,7 @@ import express from 'express'
 import cookieParser from 'cookie-parser'
 import cors from 'cors'
 import authRoute from './routes/auth.js'
+import userRoute from './routes/user.js'
 import connectDatabase from './config/connectDatabase.js'
 import { FRONTEND_URL, PORT } from './config/config.js'
 
@@ -19,6 +20,7 @@ app.use(cors({
 app.use(cookieParser())
 //app.get("/", (req, res) => {res.send("i am akka")})
 app.use("/auth", authRoute)
+app.use("/user", userRoute)
 
 
 async function startServer() {
