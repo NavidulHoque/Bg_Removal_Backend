@@ -14,9 +14,11 @@ export const readAnUser = async (req, res) => {
 
         const user = await User.findOne({ email, provider })
 
+        const {_id, username, photo, creditBalance} = user
+
         return res.json({
             status: true,
-            user
+            user: {_id, username, email, photo, provider, creditBalance}
         })
     } 
     

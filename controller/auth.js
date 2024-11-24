@@ -77,6 +77,8 @@ export const loginAnUser = async (req, res) => {
 
         const isMatched = await user.comparePassword(password, user.password)
 
+        const {_id, username, provider, creditBalance} = user
+
         if (!isMatched) {
             return res.json({
                 status: false,
@@ -86,24 +88,8 @@ export const loginAnUser = async (req, res) => {
 
         return res.json({
             status: true,
-            user
+            user: {_id, email, username, provider, creditBalance}
         })
-    }
-
-    catch (error) {
-        console.error(error)
-
-        return res.json({
-            status: false,
-            message: "Something went wrong, please try again"
-        })
-    }
-}
-
-export const logoutAnUser = async (req, res) => {
-
-    try {
-        return res.clearCookie("token", { sameSite: "none", secure: true }).json({ status: true })
     }
 
     catch (error) {
