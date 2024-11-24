@@ -66,7 +66,7 @@ export const loginAnUser = async (req, res) => {
 
         const { email, password } = req.body
 
-        const user = await User.findOne({ email })
+        const user = await User.findOne({ email, provider: "credentials" })
 
         if (!user) {
             return res.json({

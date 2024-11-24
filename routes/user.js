@@ -1,10 +1,10 @@
 import express from 'express'
-import { readAnUserCreditBalance, updateAnUserCreditBalance } from '../controller/user.js'
+import { readAnUser, updateAnUserCreditBalance } from '../controller/user.js'
 import { protect } from '../controller/auth.js'
 
 const router = express.Router()
 
-router.post("/readCredits", readAnUserCreditBalance)
+router.post("/read", readAnUser)
 
 router.put("/updateCredits", updateAnUserCreditBalance)
 

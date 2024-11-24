@@ -1,6 +1,6 @@
 import { User } from "../models/User.js";
 
-export const readAnUserCreditBalance = async (req, res) => {
+export const readAnUser = async (req, res) => {
     
     const {email, provider} = req.body
 
@@ -8,8 +8,7 @@ export const readAnUserCreditBalance = async (req, res) => {
 
         if (!email && !provider) {
             return res.json({
-                status: false,
-                message: "No credit balance to show, log in first"
+                status: false
             })
         }
 
@@ -17,7 +16,7 @@ export const readAnUserCreditBalance = async (req, res) => {
 
         return res.json({
             status: true,
-            creditBalance: user.creditBalance
+            user
         })
     } 
     
