@@ -46,11 +46,11 @@ export const updateAnUserCreditBalance = async (req, res) => {
             })
         }
 
-        const user = await User.findOneAndUpdate({ email, provider }, {creditBalance}, { new: true })
+        const user = await User.findOneAndUpdate({ email, provider }, {creditBalance: creditBalance - 1}, { new: true })
 
         return res.json({
             status: true,
-            creditBalance: user.creditBalance
+            user
         })
     } 
     
