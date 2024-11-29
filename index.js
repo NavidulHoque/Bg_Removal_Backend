@@ -18,7 +18,6 @@ app.use(cors({
 
 
 app.use(cookieParser())
-app.get("/", (req, res) => {res.send("i am akka")})
 app.use("/auth", authRoute)
 app.use("/user", userRoute)
 
